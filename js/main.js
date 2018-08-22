@@ -37,35 +37,18 @@
             this.handleRemoveCol = this.handleRemoveCol.bind(this);
             this.removeCol = this.removeCol.bind(this);
             this.removeRow = this.removeRow.bind(this);
-            this.renderTable = this.renderTable.bind(this);
-            this.getStyles = this.getStyles.bind(this);
 
             this.getStyles(editableTableContainer);
             this.renderTable(editableTableContainer, cols, rows);
             shadow.appendChild(editableTableContainer);
 
-
             var rootTable = editableTableContainer.querySelector('#root-table');
             var tds = rootTable.getElementsByTagName('td');
 
-            editableTableContainer.addEventListener('mouseout', function (e) {
-                console.log(e.target)
-                // editableTableContainer.querySelector('#control-row').style.display = "none";
-                // editableTableContainer.querySelector('#control-col').style.display = "none";
-            });
-
-            for (var i = 0; i < tds.length; i++) {
-                tds[i].addEventListener('mouseover', function () {
-                    editableTableContainer.querySelector('#control-row').style.display = "flex";
-                    editableTableContainer.querySelector('#control-col').style.display = "flex";
-
-                    editableTableContainer.querySelector('#control-col').style.marginLeft = (this.offsetLeft + 72) + "px";
-                    editableTableContainer.querySelector('#control-row').style.marginTop = this.offsetTop + "px";
-
-                    editableTableContainer.querySelector('#control-col').style.width = this.offsetWidth + "px";
-                    editableTableContainer.querySelector('#control-row').style.height = this.offsetHeight + "px";
-                });
-            }
+            this.hideControlsHandler(editableTableContainer);
+            this.showControlsHandler(editableTableContainer, tds);
+            this.handleRemoveRow(editableTableContainer.getElementsByClassName("control-row"));
+            this.handleRemoveCol(editableTableContainer.getElementsByClassName("control-col"));
 
         }
 
@@ -86,27 +69,78 @@
                     .control-col {
 
                     }
+                    .red {
+                        background-color: #cc4543;
+                    }
+                    .yellow {
+                        background-color: #e5d932;
+                    }
                     .control-row, .control-col {
                         width: 70px;
                         height: 70px;
-                        background-color: #cc4543;
                         color: white;
                         justify-content: center;
                         align-items: center;
                         display: none;
                         font-size: 30px;
+                        cursor:pointer;
+                    }
+                    .control-add {
+                        display: flex;
+                        font-weight: 600;
+                    }
+                    .control-add.control-col {
+                        margin-top: 4px;                        
+                    }
+                    .main-container.active .control-add.control-row {
+                        margin-left: 74px;
+                    }
+                    .control-add.control-row {
+                        margin-left: 4px;
                     }
                     .control-col td, .control-row td {
                         background-color: #bf563f;
                     }
                     .row-container {
-                    display: flex;;
+                        display: flex;;
                     }
                     .main-container {
-                    
+                        margin-top: 88px;
+                        margin-left: 70px;
+                    }
+                    .main-container.active {
+                        margin: 0;
                     }
                 </style>
             `;
+        }
+
+        // handler for showing control element (Remove buttons)
+        showControlsHandler(rootElement, tdsArray) {
+            for (var i = 0; i < tdsArray.length; i++) {
+                tdsArray[i].addEventListener('mouseover', function () {
+                    rootElement.querySelector('#control-col').style.marginLeft = (this.offsetLeft + 72) + "px";
+                    rootElement.querySelector('#control-row').style.marginTop = this.offsetTop + "px";
+
+                    rootElement.querySelector('#control-col').style.width = this.offsetWidth + "px";
+                    rootElement.querySelector('#control-row').style.height = this.offsetHeight + "px";
+                });
+            }
+        }
+
+        // handler for hiding control elements (Remove buttons)
+        hideControlsHandler(element) {
+            element.addEventListener('mouseover', function (e) {
+                if ((e.target.tagName !== 'TD') && (e.target.tagName !== 'TABLE') && !e.target.classList.contains("js-control")) {
+                    element.querySelector('#control-row').style.display = "none";
+                    element.querySelector('#control-col').style.display = "none";
+                    element.querySelector(".main-container").classList.remove('active');
+                } else {
+                    element.querySelector('#control-row').style.display = "flex";
+                    element.querySelector('#control-col').style.display = "flex";
+                    element.querySelector(".main-container").classList.add('active');
+                }
+            });
         }
 
         // element - dom element where table will be attached
@@ -117,18 +151,35 @@
             var rowContainer = document.createElement("DIV");
             rowContainer.classList.add('row-container');
 
-            // Sub table for removing rows
+            // btn for removing columns
             var controlCol = document.createElement("DIV");
             controlCol.classList.add('control-col');
+            controlCol.classList.add('js-control');
+            controlCol.classList.add('red');
             controlCol.id = 'control-col';
             controlCol.textContent = "-";
 
-            // Sub table for removing rows
+            // btn for removing rows
             var controlRow = document.createElement("DIV");
             controlRow.classList.add('control-row');
+            controlRow.classList.add('js-control');
+            controlRow.classList.add('red');
             controlRow.id = 'control-row';
             controlRow.textContent = "-";
 
+            // btn for add row
+            var controlAddRow = document.createElement("DIV");
+            controlAddRow.classList.add('control-row');
+            controlAddRow.classList.add('control-add');
+            controlAddRow.classList.add('yellow');
+            controlAddRow.textContent = "+";
+
+            // btn for add columns
+            var controlAddCol = document.createElement("DIV");
+            controlAddCol.classList.add('control-col');
+            controlAddCol.classList.add('control-add');
+            controlAddCol.classList.add('yellow');
+            controlAddCol.textContent = "+";
 
             // Main table
             var table = document.createElement("TABLE");
@@ -147,9 +198,12 @@
             // Main table
             rowContainer.appendChild(controlRow);
             rowContainer.appendChild(table);
+            rowContainer.appendChild(controlAddCol);
 
             mainContainer.appendChild(controlCol);
             mainContainer.appendChild(rowContainer);
+            mainContainer.appendChild(controlAddRow);
+
 
             element.appendChild(mainContainer);
         }
@@ -166,16 +220,16 @@
 
         // Add listener to remove row buttons
         handleRemoveRow(elements) {
-            elements.forEach(element => {
-                element.addEventListener('click', this.removeRow, false);
-            });
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].addEventListener('click', this.removeRow, false);
+            }
         }
 
         // Add listener to remove col buttons
         handleRemoveCol(elements) {
-            elements.forEach(element => {
-                element.addEventListener('click', this.removeCol, false);
-            });
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].addEventListener('click', this.removeCol, false);
+            }
         }
 
         removeRow(e) {
