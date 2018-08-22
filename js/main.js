@@ -13,7 +13,6 @@
 
     class EditableTable extends HTMLElement {
 
-
         constructor() {
             super();
 
@@ -29,14 +28,13 @@
             const rows = this.rows;
             const cols = this.cols;
 
-            console.log(rows);
-            console.log(cols);
-
             // binding methods
             this.handleRemoveRow = this.handleRemoveRow.bind(this);
             this.handleRemoveCol = this.handleRemoveCol.bind(this);
             this.removeCol = this.removeCol.bind(this);
             this.removeRow = this.removeRow.bind(this);
+            this.addRow = this.addRow.bind(this);
+            this.addCol = this.addCol.bind(this);
 
             this.getStyles(editableTableContainer);
             this.renderTable(editableTableContainer, cols, rows);
@@ -47,8 +45,10 @@
 
             this.hideControlsHandler(editableTableContainer);
             this.showControlsHandler(editableTableContainer, tds);
-            this.handleRemoveRow(editableTableContainer.getElementsByClassName("control-row"));
-            this.handleRemoveCol(editableTableContainer.getElementsByClassName("control-col"));
+            this.handleRemoveRow(editableTableContainer.querySelector("#controlRemoveRow"));
+            this.handleRemoveCol(editableTableContainer.querySelector("#controlRemoveCol"));
+            this.handleAddRow(editableTableContainer.querySelector("#controlAddRow"));
+            this.handleAddCol(editableTableContainer.querySelector("#controlAddCol"));
 
         }
 
@@ -119,11 +119,11 @@
         showControlsHandler(rootElement, tdsArray) {
             for (var i = 0; i < tdsArray.length; i++) {
                 tdsArray[i].addEventListener('mouseover', function () {
-                    rootElement.querySelector('#control-col').style.marginLeft = (this.offsetLeft + 72) + "px";
-                    rootElement.querySelector('#control-row').style.marginTop = this.offsetTop + "px";
+                    rootElement.querySelector('#controlRemoveCol').style.marginLeft = (this.offsetLeft + 72) + "px";
+                    rootElement.querySelector('#controlRemoveRow').style.marginTop = this.offsetTop + "px";
 
-                    rootElement.querySelector('#control-col').style.width = this.offsetWidth + "px";
-                    rootElement.querySelector('#control-row').style.height = this.offsetHeight + "px";
+                    rootElement.querySelector('#controlRemoveCol').style.width = this.offsetWidth + "px";
+                    rootElement.querySelector('#controlRemoveRow').style.height = this.offsetHeight + "px";
                 });
             }
         }
@@ -132,12 +132,12 @@
         hideControlsHandler(element) {
             element.addEventListener('mouseover', function (e) {
                 if ((e.target.tagName !== 'TD') && (e.target.tagName !== 'TABLE') && !e.target.classList.contains("js-control")) {
-                    element.querySelector('#control-row').style.display = "none";
-                    element.querySelector('#control-col').style.display = "none";
+                    element.querySelector('#controlRemoveRow').style.display = "none";
+                    element.querySelector('#controlRemoveCol').style.display = "none";
                     element.querySelector(".main-container").classList.remove('active');
                 } else {
-                    element.querySelector('#control-row').style.display = "flex";
-                    element.querySelector('#control-col').style.display = "flex";
+                    element.querySelector('#controlRemoveRow').style.display = "flex";
+                    element.querySelector('#controlRemoveCol').style.display = "flex";
                     element.querySelector(".main-container").classList.add('active');
                 }
             });
@@ -156,7 +156,7 @@
             controlCol.classList.add('control-col');
             controlCol.classList.add('js-control');
             controlCol.classList.add('red');
-            controlCol.id = 'control-col';
+            controlCol.id = 'controlRemoveCol';
             controlCol.textContent = "-";
 
             // btn for removing rows
@@ -164,7 +164,7 @@
             controlRow.classList.add('control-row');
             controlRow.classList.add('js-control');
             controlRow.classList.add('red');
-            controlRow.id = 'control-row';
+            controlRow.id = 'controlRemoveRow';
             controlRow.textContent = "-";
 
             // btn for add row
@@ -172,6 +172,7 @@
             controlAddRow.classList.add('control-row');
             controlAddRow.classList.add('control-add');
             controlAddRow.classList.add('yellow');
+            controlAddRow.id = 'controlAddRow';
             controlAddRow.textContent = "+";
 
             // btn for add columns
@@ -179,6 +180,7 @@
             controlAddCol.classList.add('control-col');
             controlAddCol.classList.add('control-add');
             controlAddCol.classList.add('yellow');
+            controlAddCol.id = 'controlAddCol';
             controlAddCol.textContent = "+";
 
             // Main table
@@ -219,17 +221,23 @@
         }
 
         // Add listener to remove row buttons
-        handleRemoveRow(elements) {
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].addEventListener('click', this.removeRow, false);
-            }
+        handleRemoveRow(element) {
+            element.addEventListener('click', this.removeRow, false);
         }
 
         // Add listener to remove col buttons
-        handleRemoveCol(elements) {
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].addEventListener('click', this.removeCol, false);
-            }
+        handleRemoveCol(element) {
+            element.addEventListener('click', this.removeCol, false);
+
+        }
+
+        handleAddRow(element) {
+            element.addEventListener('click', this.addRow, false);
+
+        }
+
+        handleAddCol(element) {
+            element.addEventListener('click', this.addCol, false);
         }
 
         removeRow(e) {
@@ -238,6 +246,14 @@
 
         removeCol(e) {
             console.log('Remove col');
+        }
+
+        addRow(e) {
+            console.log('Add row');
+        }
+
+        addCol(e) {
+            console.log('Add col');
         }
 
     }
