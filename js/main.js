@@ -316,12 +316,12 @@
             var table = this.shadowRoot.getElementById("root-table");
             var container = this.shadowRoot.querySelector(".table_wrapper");
             var trArray = table.getElementsByTagName("TR");
-            var tdAmount = table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
+            var trAmount = table.getElementsByTagName("tr").length;
 
-            console.log(trArray);
+            console.log(trAmount);
             var tdArray = [];
             // Need to refactor getting amount of table cells in a row
-            for (var i = 0; i < tdAmount; i++) {
+            for (var i = 0; i < trAmount; i++) {
                 var newTd = document.createElement("TD");
                 newTd.textContent = "TestNew";
                 trArray[i].appendChild(newTd);
