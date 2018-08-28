@@ -45,6 +45,7 @@
 
             this.hideControlsHandler(editableTableContainer);
             this.showControlsHandler(editableTableContainer, tds);
+
             this.handleRemoveRow(editableTableContainer.querySelector("#controlRemoveRow"));
             this.handleRemoveCol(editableTableContainer.querySelector("#controlRemoveCol"));
             this.handleAddRow(editableTableContainer.querySelector("#controlAddRow"));
@@ -119,13 +120,25 @@
         showControlsHandler(rootElement, tdsArray) {
             for (var i = 0; i < tdsArray.length; i++) {
                 tdsArray[i].addEventListener('mouseover', function () {
-                    rootElement.querySelector('#controlRemoveCol').style.marginLeft = (this.offsetLeft + 72) + "px";
-                    rootElement.querySelector('#controlRemoveRow').style.marginTop = this.offsetTop + "px";
+                    var rowControl, colControl;
 
-                    rootElement.querySelector('#controlRemoveCol').style.width = this.offsetWidth + "px";
-                    rootElement.querySelector('#controlRemoveRow').style.height = this.offsetHeight + "px";
+                    colControl = rootElement.querySelector('#controlRemoveCol');
+                    rowControl = rootElement.querySelector('#controlRemoveRow');
+
+                    colControl.style.marginLeft = (this.offsetLeft + 72) + "px";
+                    rowControl.style.marginTop = this.offsetTop + "px";
+
+                    colControl.style.width = this.offsetWidth + "px";
+                    rowControl.style.height = this.offsetHeight + "px";
+
+                    colControl.setAttribute('data-col', String(this.cellIndex));
+                    rowControl.setAttribute('data-row', String(this.parentNode.rowIndex));
                 });
             }
+            tdsArray[0].addEventListener('mouseover', function () {
+                rootElement.querySelector('#controlAddCol').style.height = tdsArray[0].offsetHeight + "px";
+                rootElement.querySelector('#controlAddRow').style.width = tdsArray[0].offsetWidth + "px";
+            });
         }
 
         // handler for hiding control elements (Remove buttons)
@@ -157,6 +170,7 @@
             controlCol.classList.add('js-control');
             controlCol.classList.add('red');
             controlCol.id = 'controlRemoveCol';
+            controlCol.setAttribute('data-col', '0');
             controlCol.textContent = "-";
 
             // btn for removing rows
@@ -165,6 +179,7 @@
             controlRow.classList.add('js-control');
             controlRow.classList.add('red');
             controlRow.id = 'controlRemoveRow';
+            controlRow.setAttribute('data-row', '0');
             controlRow.textContent = "-";
 
             // btn for add row
@@ -241,19 +256,81 @@
         }
 
         removeRow(e) {
-            console.log('Remove row');
+            var controlRow = this.shadowRoot.getElementById('controlRemoveRow')
+            var rowNumber = parseInt(controlRow.getAttribute('data-row'));
+            var table = this.shadowRoot.getElementById("root-table");
+
+            if (table.getElementsByTagName("tr").length > 1) {
+                table.deleteRow(rowNumber);
+            }
+
+            // If last row hide remove button
+            if (table.getElementsByTagName("tr").length === rowNumber) {
+                controlRow.style.display = 'none';
+            }
         }
 
         removeCol(e) {
-            console.log('Remove col');
+            var controlCol = this.shadowRoot.getElementById('controlRemoveCol')
+            var colNumber = parseInt(controlCol.getAttribute('data-col'));
+            var table = this.shadowRoot.getElementById("root-table");
+
+            var trArray = table.getElementsByTagName("TR");
+
+            // Keep last cell
+            if (table.getElementsByTagName("tr")[0].getElementsByTagName("td").length > 1) {
+                for (var i = 0; i < trArray.length; i++) {
+                    trArray[i].deleteCell(colNumber);
+                }
+            }
+
+            // If last column hide remove button
+            if (table.getElementsByTagName("tr")[0].getElementsByTagName("td").length === colNumber) {
+                controlCol.style.display = 'none';
+            }
         }
 
         addRow(e) {
-            console.log('Add row');
+            var newTr = document.createElement("TR");
+            var table = this.shadowRoot.getElementById("root-table");
+            var container = this.shadowRoot.querySelector(".table_wrapper");
+            var tdAmount = table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
+
+            var tdArray = [];
+            // Need to refactor getting amount of table cells in a row
+            for (var i = 0; i < tdAmount; i++) {
+                var newTd = document.createElement("TD");
+                newTd.textContent = "TestNew";
+                newTr.appendChild(newTd);
+
+                tdArray.push(newTd);
+            }
+            table.appendChild(newTr);
+
+            // set handlers for new cells
+            this.showControlsHandler(container, tdArray);
+            this.hideControlsHandler(container, tdArray);
         }
 
         addCol(e) {
-            console.log('Add col');
+            var table = this.shadowRoot.getElementById("root-table");
+            var container = this.shadowRoot.querySelector(".table_wrapper");
+            var trArray = table.getElementsByTagName("TR");
+            var tdAmount = table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
+
+            console.log(trArray);
+            var tdArray = [];
+            // Need to refactor getting amount of table cells in a row
+            for (var i = 0; i < tdAmount; i++) {
+                var newTd = document.createElement("TD");
+                newTd.textContent = "TestNew";
+                trArray[i].appendChild(newTd);
+
+                tdArray.push(newTd);
+            }
+            // set handlers for new cells
+            this.showControlsHandler(container, tdArray);
+            this.hideControlsHandler(container, tdArray);
         }
 
     }
