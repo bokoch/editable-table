@@ -28,8 +28,11 @@
         /** @property {String} Class for all buttons that can change table (remove, add) */
         CONTROL_BUTTON_CLASS: '.js-control',
 
-        /** @property {String} Container class for remove column button, table and add row button */
+        /** @property {String} Container class for remove column button, ROW_CONTAINER_CLASS and add row button */
         TABLE_CONTAINER_CLASS: '.main-container',
+
+        /** @property {String} Container class for remove row button, table and add col button */
+        ROW_CONTAINER_CLASS: '.row-container',
 
         /** {String} ID of main table */
         TABLE_ID: '#root-table',
@@ -219,9 +222,9 @@
         renderTable(element, colNumber, rowNumber) {
 
             let mainContainer = document.createElement("DIV");
-            mainContainer.classList.add('main-container');
+            mainContainer.classList.add(this.removeSelectorSign(initProps.TABLE_CONTAINER_CLASS));
             let rowContainer = document.createElement("DIV");
-            rowContainer.classList.add('row-container');
+            rowContainer.classList.add(this.removeSelectorSign(initProps.ROW_CONTAINER_CLASS));
 
             // btn for removing columns
             let controlCol = document.createElement("DIV");
