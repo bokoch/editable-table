@@ -37,6 +37,20 @@
         /** {String} Attribute that contain index of current row */
         CURRENT_ROW: 'data-row',
 
+        /** {String} Class to set styles for remove/add columns buttons */
+        CONTROL_COL_CSS: 'control-col',
+
+        /** {String} Class to set styles for remove/add row buttons */
+        CONTROL_ROW_CSS: 'control-row',
+
+        CONTROL_ADD_BTN_CSS: 'control-add',
+
+        /** {String} Class to set color for remove button */
+        CONTROL_REMOVE_COLOR_CSS: 'red',
+
+        /** {String} Class to set color for add button */
+        CONTROL_ADD_COLOR_CSS: 'yellow',
+
     };
 
     class EditableTable extends HTMLElement {
@@ -208,41 +222,41 @@
 
             // btn for removing columns
             let controlCol = document.createElement("DIV");
-            controlCol.classList.add('control-col');
-            controlCol.classList.add('js-control');
-            controlCol.classList.add('red');
-            controlCol.id = 'controlRemoveCol';
+            controlCol.classList.add(initProps.CONTROL_COL_CSS);
+            controlCol.classList.add(initProps.CONTROL_REMOVE_COLOR_CSS);
+            controlCol.classList.add(this.removeSelectorSign(initProps.CONTROL_BUTTON_CLASS));
+            controlCol.id = this.removeSelectorSign(initProps.REMOVE_COL_BTN_ID);
             controlCol.setAttribute(initProps.CURRENT_COL, '0');
             controlCol.textContent = "-";
 
             // btn for removing rows
             let controlRow = document.createElement("DIV");
-            controlRow.classList.add('control-row');
-            controlRow.classList.add('js-control');
-            controlRow.classList.add('red');
-            controlRow.id = 'controlRemoveRow';
+            controlRow.classList.add(initProps.CONTROL_ROW_CSS);
+            controlRow.classList.add(initProps.CONTROL_REMOVE_COLOR_CSS);
+            controlRow.classList.add(this.removeSelectorSign(initProps.CONTROL_BUTTON_CLASS));
+            controlRow.id = this.removeSelectorSign(initProps.REMOVE_ROW_BTN_ID);
             controlRow.setAttribute(initProps.CURRENT_ROW, '0');
             controlRow.textContent = "-";
 
             // btn for add row
             let controlAddRow = document.createElement("DIV");
-            controlAddRow.classList.add('control-row');
-            controlAddRow.classList.add('control-add');
-            controlAddRow.classList.add('yellow');
-            controlAddRow.id = 'controlAddRow';
+            controlAddRow.classList.add(initProps.CONTROL_ADD_BTN_CSS);
+            controlAddRow.classList.add(initProps.CONTROL_ROW_CSS);
+            controlAddRow.classList.add(initProps.CONTROL_ADD_COLOR_CSS);
+            controlAddRow.id = this.removeSelectorSign(initProps.ADD_ROW_BTN_ID);
             controlAddRow.textContent = "+";
 
             // btn for add columns
             let controlAddCol = document.createElement("DIV");
-            controlAddCol.classList.add('control-col');
-            controlAddCol.classList.add('control-add');
-            controlAddCol.classList.add('yellow');
-            controlAddCol.id = 'controlAddCol';
+            controlAddCol.classList.add(initProps.CONTROL_COL_CSS);
+            controlAddCol.classList.add(initProps.CONTROL_ADD_BTN_CSS);
+            controlAddCol.classList.add(initProps.CONTROL_ADD_COLOR_CSS);
+            controlAddCol.id = this.removeSelectorSign(initProps.ADD_COL_BTN_ID);
             controlAddCol.textContent = "+";
 
             // Main table
             let table = document.createElement("TABLE");
-            table.id = 'root-table';
+            table.id = this.removeSelectorSign(initProps.TABLE_ID);
 
             for (let i = 0; i < rowNumber; i++) {
                 let tr = document.createElement('TR');
