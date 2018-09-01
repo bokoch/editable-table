@@ -1,15 +1,43 @@
 'use strict';
 
 (function () {
-    class InitOptions {
-        static get initRows() {
-            return 5;
-        }
+    const defaultProps = {
+        rowsAmount: 5,
+        colsAmount: 5,
+    };
 
-        static get initCols() {
-            return 5;
-        }
-    }
+    const initProps = {
+        /** @property {String} Wrapper for all element */
+        ELEMENT_WRAPPER_CLASS: '.table_wrapper',
+
+        /** @property {String} ID of removing row button */
+        REMOVE_ROW_BTN_ID: '#controlRemoveRow',
+
+        /** @property {String} ID of removing column button */
+        REMOVE_COL_BTN_ID: '#controlRemoveCol',
+
+        /** @property {String} ID of adding row button */
+        ADD_ROW_BTN_ID: '#controlAddRow',
+
+        /** @property {String} ID of adding column button */
+        ADD_COL_BTN_ID: '#controlAddCol',
+
+        /** @property {String} Class for all buttons that can change table (remove, add) */
+        CONTROL_BUTTON_CLASS: '.js-control',
+
+        /** @property {String} Container class for remove column button, table and add row button */
+        TABLE_CONTAINER_CLASS: '.main-container',
+
+        /** {String} ID of main table */
+        TABLE_ID: '#root-table',
+
+        /** {String} Attribute that contain index of current column */
+        CURRENT_COL: 'data-col',
+
+        /** {String} Attribute that contain index of current row */
+        CURRENT_ROW: 'data-row',
+
+    };
 
     class EditableTable extends HTMLElement {
 
@@ -21,8 +49,9 @@
 
             // Create wrapper of table
             const editableTableContainer = document.createElement('div');
-            editableTableContainer.classList.add('table_wrapper');
-
+            editableTableContainer.classList.add(
+                this.removeSelectorSign(initProps.ELEMENT_WRAPPER_CLASS)
+            );
 
             // get attribute values
             const rows = this.rows;
@@ -40,16 +69,16 @@
             this.renderTable(editableTableContainer, cols, rows);
             shadow.appendChild(editableTableContainer);
 
-            var rootTable = editableTableContainer.querySelector('#root-table');
-            var tds = rootTable.getElementsByTagName('td');
+            const rootTable = editableTableContainer.querySelector(initProps.TABLE_ID);
+            const tds = rootTable.getElementsByTagName('td');
 
             this.hideControlsHandler(editableTableContainer);
             this.showControlsHandler(editableTableContainer, tds);
 
-            this.handleRemoveRow(editableTableContainer.querySelector("#controlRemoveRow"));
-            this.handleRemoveCol(editableTableContainer.querySelector("#controlRemoveCol"));
-            this.handleAddRow(editableTableContainer.querySelector("#controlAddRow"));
-            this.handleAddCol(editableTableContainer.querySelector("#controlAddCol"));
+            this.handleRemoveRow(editableTableContainer.querySelector(initProps.REMOVE_ROW_BTN_ID));
+            this.handleRemoveCol(editableTableContainer.querySelector(initProps.REMOVE_COL_BTN_ID));
+            this.handleAddRow(editableTableContainer.querySelector(initProps.ADD_ROW_BTN_ID));
+            this.handleAddCol(editableTableContainer.querySelector(initProps.ADD_COL_BTN_ID));
 
         }
 
@@ -116,42 +145,55 @@
             `;
         }
 
-        // handler for showing control element (Remove buttons)
+        /**
+         * @description Handler for showing control elements on hover (Add and Remove buttons)
+         *
+         * @param rootElement table container (with add and remove buttons)
+         * @param tdsArray array of cells, where adding listener mouseover
+         */
         showControlsHandler(rootElement, tdsArray) {
-            for (var i = 0; i < tdsArray.length; i++) {
+            for (let i = 0; i < tdsArray.length; i++) {
                 tdsArray[i].addEventListener('mouseover', function () {
-                    var rowControl, colControl;
+                    let rowControl, colControl;
 
-                    colControl = rootElement.querySelector('#controlRemoveCol');
-                    rowControl = rootElement.querySelector('#controlRemoveRow');
+                    colControl = rootElement.querySelector(initProps.REMOVE_COL_BTN_ID);
+                    rowControl = rootElement.querySelector(initProps.REMOVE_ROW_BTN_ID);
 
+                    // if table cell change width/height (text content)
+                    // change width/height of remove buttons
                     colControl.style.marginLeft = (this.offsetLeft + 72) + "px";
                     rowControl.style.marginTop = this.offsetTop + "px";
 
                     colControl.style.width = this.offsetWidth + "px";
                     rowControl.style.height = this.offsetHeight + "px";
 
-                    colControl.setAttribute('data-col', String(this.cellIndex));
-                    rowControl.setAttribute('data-row', String(this.parentNode.rowIndex));
+                    // set attribute for row and col number in remove buttons
+                    colControl.setAttribute(initProps.CURRENT_COL, String(this.cellIndex));
+                    rowControl.setAttribute(initProps.CURRENT_ROW, String(this.parentNode.rowIndex));
                 });
             }
             tdsArray[0].addEventListener('mouseover', function () {
-                rootElement.querySelector('#controlAddCol').style.height = tdsArray[0].offsetHeight + "px";
-                rootElement.querySelector('#controlAddRow').style.width = tdsArray[0].offsetWidth + "px";
+                rootElement.querySelector(initProps.ADD_COL_BTN_ID).style.height = tdsArray[0].offsetHeight + "px";
+                rootElement.querySelector(initProps.ADD_COL_BTN_ID).style.width = tdsArray[0].offsetWidth + "px";
             });
         }
 
         // handler for hiding control elements (Remove buttons)
         hideControlsHandler(element) {
+            let self = this;
+
             element.addEventListener('mouseover', function (e) {
-                if ((e.target.tagName !== 'TD') && (e.target.tagName !== 'TABLE') && !e.target.classList.contains("js-control")) {
-                    element.querySelector('#controlRemoveRow').style.display = "none";
-                    element.querySelector('#controlRemoveCol').style.display = "none";
-                    element.querySelector(".main-container").classList.remove('active');
+                if ((e.target.tagName !== 'TD') &&
+                    (e.target.tagName !== 'TABLE') &&
+                    !e.target.classList.contains(self.removeSelectorSign(initProps.CONTROL_BUTTON_CLASS))
+                ) {
+                    element.querySelector(initProps.REMOVE_ROW_BTN_ID).style.display = "none";
+                    element.querySelector(initProps.REMOVE_COL_BTN_ID).style.display = "none";
+                    element.querySelector(initProps.TABLE_CONTAINER_CLASS).classList.remove('active');
                 } else {
-                    element.querySelector('#controlRemoveRow').style.display = "flex";
-                    element.querySelector('#controlRemoveCol').style.display = "flex";
-                    element.querySelector(".main-container").classList.add('active');
+                    element.querySelector(initProps.REMOVE_ROW_BTN_ID).style.display = "flex";
+                    element.querySelector(initProps.REMOVE_COL_BTN_ID).style.display = "flex";
+                    element.querySelector(initProps.TABLE_CONTAINER_CLASS).classList.add('active');
                 }
             });
         }
@@ -159,31 +201,31 @@
         // element - dom element where table will be attached
         renderTable(element, colNumber, rowNumber) {
 
-            var mainContainer = document.createElement("DIV");
+            let mainContainer = document.createElement("DIV");
             mainContainer.classList.add('main-container');
-            var rowContainer = document.createElement("DIV");
+            let rowContainer = document.createElement("DIV");
             rowContainer.classList.add('row-container');
 
             // btn for removing columns
-            var controlCol = document.createElement("DIV");
+            let controlCol = document.createElement("DIV");
             controlCol.classList.add('control-col');
             controlCol.classList.add('js-control');
             controlCol.classList.add('red');
             controlCol.id = 'controlRemoveCol';
-            controlCol.setAttribute('data-col', '0');
+            controlCol.setAttribute(initProps.CURRENT_COL, '0');
             controlCol.textContent = "-";
 
             // btn for removing rows
-            var controlRow = document.createElement("DIV");
+            let controlRow = document.createElement("DIV");
             controlRow.classList.add('control-row');
             controlRow.classList.add('js-control');
             controlRow.classList.add('red');
             controlRow.id = 'controlRemoveRow';
-            controlRow.setAttribute('data-row', '0');
+            controlRow.setAttribute(initProps.CURRENT_ROW, '0');
             controlRow.textContent = "-";
 
             // btn for add row
-            var controlAddRow = document.createElement("DIV");
+            let controlAddRow = document.createElement("DIV");
             controlAddRow.classList.add('control-row');
             controlAddRow.classList.add('control-add');
             controlAddRow.classList.add('yellow');
@@ -191,7 +233,7 @@
             controlAddRow.textContent = "+";
 
             // btn for add columns
-            var controlAddCol = document.createElement("DIV");
+            let controlAddCol = document.createElement("DIV");
             controlAddCol.classList.add('control-col');
             controlAddCol.classList.add('control-add');
             controlAddCol.classList.add('yellow');
@@ -199,13 +241,13 @@
             controlAddCol.textContent = "+";
 
             // Main table
-            var table = document.createElement("TABLE");
+            let table = document.createElement("TABLE");
             table.id = 'root-table';
 
-            for (var i = 0; i < rowNumber; i++) {
-                var tr = document.createElement('TR');
-                for (var j = 0; j < colNumber; j++) {
-                    var td = document.createElement('TD');
+            for (let i = 0; i < rowNumber; i++) {
+                let tr = document.createElement('TR');
+                for (let j = 0; j < colNumber; j++) {
+                    let td = document.createElement('TD');
                     td.textContent = "Test";
                     tr.appendChild(td);
                 }
@@ -227,12 +269,19 @@
 
         // Get rows number of table from attributes
         get rows() {
-            return parseInt(this.getAttribute('data-table-rows')) || InitOptions.initRows;
+            return parseInt(this.getAttribute('data-table-rows')) || defaultProps.rowsAmount;
         }
 
         // Get cols number of table from attributes
         get cols() {
-            return parseInt(this.getAttribute('data-table-cols')) || InitOptions.initCols;
+            return parseInt(this.getAttribute('data-table-cols')) || defaultProps.colsAmount;
+        }
+
+        /**
+         * @description Remove querySelector sign (remove # or . from str)
+         */
+        removeSelectorSign(str) {
+            return str.replace(/\.|#/g, '');
         }
 
         // Add listener to remove row buttons
@@ -256,9 +305,9 @@
         }
 
         removeRow(e) {
-            var controlRow = this.shadowRoot.getElementById('controlRemoveRow')
-            var rowNumber = parseInt(controlRow.getAttribute('data-row'));
-            var table = this.shadowRoot.getElementById("root-table");
+            let controlRow = this.shadowRoot.querySelector(initProps.REMOVE_ROW_BTN_ID);
+            let rowNumber = parseInt(controlRow.getAttribute(initProps.CURRENT_ROW));
+            let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
 
             if (table.getElementsByTagName("tr").length > 1) {
                 table.deleteRow(rowNumber);
@@ -271,15 +320,15 @@
         }
 
         removeCol(e) {
-            var controlCol = this.shadowRoot.getElementById('controlRemoveCol')
-            var colNumber = parseInt(controlCol.getAttribute('data-col'));
-            var table = this.shadowRoot.getElementById("root-table");
+            let controlCol = this.shadowRoot.querySelector(initProps.REMOVE_COL_BTN_ID);
+            let colNumber = parseInt(controlCol.getAttribute(initProps.CURRENT_COL));
+            let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
 
-            var trArray = table.getElementsByTagName("TR");
+            let trArray = table.getElementsByTagName("TR");
 
             // Keep last cell
             if (table.getElementsByTagName("tr")[0].getElementsByTagName("td").length > 1) {
-                for (var i = 0; i < trArray.length; i++) {
+                for (let i = 0; i < trArray.length; i++) {
                     trArray[i].deleteCell(colNumber);
                 }
             }
@@ -291,15 +340,15 @@
         }
 
         addRow(e) {
-            var newTr = document.createElement("TR");
-            var table = this.shadowRoot.getElementById("root-table");
-            var container = this.shadowRoot.querySelector(".table_wrapper");
-            var tdAmount = table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
+            let newTr = document.createElement("TR");
+            let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
+            let container = this.shadowRoot.querySelector(initProps.ELEMENT_WRAPPER_CLASS);
+            let tdAmount = table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
 
-            var tdArray = [];
+            let tdArray = [];
             // Need to refactor getting amount of table cells in a row
-            for (var i = 0; i < tdAmount; i++) {
-                var newTd = document.createElement("TD");
+            for (let i = 0; i < tdAmount; i++) {
+                let newTd = document.createElement("TD");
                 newTd.textContent = "TestNew";
                 newTr.appendChild(newTd);
 
@@ -313,16 +362,15 @@
         }
 
         addCol(e) {
-            var table = this.shadowRoot.getElementById("root-table");
-            var container = this.shadowRoot.querySelector(".table_wrapper");
-            var trArray = table.getElementsByTagName("TR");
-            var trAmount = table.getElementsByTagName("tr").length;
+            let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
+            let container = this.shadowRoot.querySelector(initProps.ELEMENT_WRAPPER_CLASS);
+            let trArray = table.getElementsByTagName("TR");
+            let trAmount = table.getElementsByTagName("tr").length;
 
-            console.log(trAmount);
-            var tdArray = [];
+            let tdArray = [];
             // Need to refactor getting amount of table cells in a row
-            for (var i = 0; i < trAmount; i++) {
-                var newTd = document.createElement("TD");
+            for (let i = 0; i < trAmount; i++) {
+                let newTd = document.createElement("TD");
                 newTd.textContent = "TestNew";
                 trArray[i].appendChild(newTd);
 
