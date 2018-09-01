@@ -2,7 +2,10 @@
 
 (function () {
     const defaultProps = {
+        /** @property {int} Default rows amount */
         rowsAmount: 5,
+
+        /** @property {int} Default columns amount */
         colsAmount: 5,
     };
 
@@ -323,12 +326,12 @@
             let rowNumber = parseInt(controlRow.getAttribute(initProps.CURRENT_ROW));
             let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
 
-            if (table.getElementsByTagName("tr").length > 1) {
+            if (this.colsAmount(table) > 1) {
                 table.deleteRow(rowNumber);
             }
 
             // If last row hide remove button
-            if (table.getElementsByTagName("tr").length === rowNumber) {
+            if (this.colsAmount(table) === rowNumber) {
                 controlRow.style.display = 'none';
             }
         }
@@ -341,14 +344,13 @@
             let trArray = table.getElementsByTagName("TR");
 
             // Keep last cell
-            if (table.getElementsByTagName("tr")[0].getElementsByTagName("td").length > 1) {
+            if (this.rowsAmount(table) > 1) {
                 for (let i = 0; i < trArray.length; i++) {
                     trArray[i].deleteCell(colNumber);
                 }
             }
-
             // If last column hide remove button
-            if (table.getElementsByTagName("tr")[0].getElementsByTagName("td").length === colNumber) {
+            if (this.rowsAmount(table) === colNumber) {
                 controlCol.style.display = 'none';
             }
         }
@@ -357,7 +359,7 @@
             let newTr = document.createElement("TR");
             let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
             let container = this.shadowRoot.querySelector(initProps.ELEMENT_WRAPPER_CLASS);
-            let tdAmount = table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
+            let tdAmount = this.rowsAmount(table);
 
             let tdArray = [];
             // Need to refactor getting amount of table cells in a row
@@ -379,10 +381,9 @@
             let table = this.shadowRoot.querySelector(initProps.TABLE_ID);
             let container = this.shadowRoot.querySelector(initProps.ELEMENT_WRAPPER_CLASS);
             let trArray = table.getElementsByTagName("TR");
-            let trAmount = table.getElementsByTagName("tr").length;
+            let trAmount = this.colsAmount(table);
 
             let tdArray = [];
-            // Need to refactor getting amount of table cells in a row
             for (let i = 0; i < trAmount; i++) {
                 let newTd = document.createElement("TD");
                 newTd.textContent = "TestNew";
@@ -393,6 +394,14 @@
             // set handlers for new cells
             this.showControlsHandler(container, tdArray);
             this.hideControlsHandler(container, tdArray);
+        }
+
+        colsAmount(table) {
+            return table.getElementsByTagName("tr").length;
+        }
+
+        rowsAmount(table) {
+            return table.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         }
 
     }
